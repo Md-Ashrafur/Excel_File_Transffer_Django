@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Upload success</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    .row { margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <h2>Upload completed</h2>
+
+  <div class="row"><strong>Record ID:</strong> {{ record.pk }}</div>
+  <div class="row"><strong>Uploaded at:</strong> {{ record.uploaded_at }}</div>
+
+  <div class="row"><strong>File 1:</strong> {{ record.file1_name }} — {{ file1_human }}</div>
+  <div class="row"><strong>File 2:</strong> {{ record.file2_name }} — {{ file2_human }}</div>
+  <div class="row"><strong>File 3:</strong> {{ record.file3_name }} — {{ file3_human }}</div>
+
+  <p><a href="/upload">Upload more files</a></p>
+  <p><a href="/transfer">Run excel transfer</a></p>
+</body>
+</html>

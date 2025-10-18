@@ -35,3 +35,21 @@ class Order(models.Model):
 
     def __str__(self):
         return f"{self.order_id}"
+    
+   # excel_transfer/models.py
+
+
+# --- your existing models: Customer, Product, Order (keep them) ---
+
+class UploadRecord(models.Model):
+    file1_name = models.CharField(max_length=255, blank=True, null=True)
+    file1_size = models.BigIntegerField(blank=True, null=True)   # size in bytes
+    file2_name = models.CharField(max_length=255, blank=True, null=True)
+    file2_size = models.BigIntegerField(blank=True, null=True)
+    file3_name = models.CharField(max_length=255, blank=True, null=True)
+    file3_size = models.BigIntegerField(blank=True, null=True)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Upload #{self.pk} at {self.uploaded_at}"
+ 

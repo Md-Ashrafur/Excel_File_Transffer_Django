@@ -17,10 +17,11 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
-from .views import transfer_data
+from .views import transfer_data, upload_files 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('transfer', transfer_data),  # URL: http://127.0.0.1:8000/transfer
+    path('upload', upload_files), 
 ]
 

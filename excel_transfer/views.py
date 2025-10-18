@@ -7,6 +7,11 @@ from .models import Customer, Product, Order
 from django.db import transaction
 from datetime import datetime
 
+from .models import UploadRecord
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render
+
+
 def transfer_data(request):
     """
     Reads three Excel files from the project's excel_folder:
@@ -155,3 +160,70 @@ def transfer_data(request):
         return HttpResponse(f"Error during processing/DB operation: {e}", status=500)
 
     return HttpResponse("Data transfer successful", status=200)
+
+
+def upload_files(request):
+    """
+    GET: render upload form
+    POST: accept three files (input names: file1, file2, file3), save them under excel_folder,
+          record their filename and size (bytes) in UploadRecord and render success info.
+    """
+
+    # ensure excel_folder exists
+    base_dir = settings.BASE_DIR
+    excel_dir = os.path.join(base_dir, 'excel_folder')
+    os.makedirs(excel_dir, exist_ok=True)
+
+    if request.method == 'POST':
+        f1 = request.FILES.get('file1')
+        f2 = request.FILES.get('file2')
+        f3 = request.FILES.get('file3')
+
+        # helper to save file and return filename and size
+        def save_uploaded(f):
+            if not f:
+                return None, None
+            # secure filename: use original name as-is; you can sanitize if needed
+            dest_path = os.path.join(excel_dir, f.name)
+            # if you want to avoid overwriting, append timestamp or unique suffix
+            with open(dest_path, 'wb') as dest:
+                for chunk in f.chunks():
+                    dest.write(chunk)
+            size_bytes = os.path.getsize(dest_path)
+            return f.name, size_bytes
+
+        name1, size1 = save_uploaded(f1)
+        name2, size2 = save_uploaded(f2)
+        name3, size3 = save_uploaded(f3)
+
+        # save record in DB
+        rec = UploadRecord.objects.create(
+            file1_name=name1,
+            file1_size=size1,
+            file2_name=name2,
+            file2_size=size2,
+            file3_name=name3,
+            file3_size=size3
+        )
+
+        # render success page listing sizes in human-friendly form
+        def human(n):
+            if not n:
+                return ''
+            # convert bytes to readable
+            for unit in ['B','KB','MB','GB','TB']:
+                if n < 1024.0:
+                    return f"{n:3.1f} {unit}"
+                n /= 1024.0
+            return f"{n:.1f} PB"
+
+        context = {
+            'record': rec,
+            'file1_human': human(size1),
+            'file2_human': human(size2),
+            'file3_human': human(size3),
+        }
+        return render(request, 'upload_success.html', context)
+
+    # GET -> render upload form
+    return render(request, 'upload.html')

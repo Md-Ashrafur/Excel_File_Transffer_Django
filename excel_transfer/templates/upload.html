@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Upload three files</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    .file-row { margin-bottom: 12px; }
+    .size { margin-left: 12px; font-weight: bold; color: #333; }
+    .preview { margin-top: 8px; color: #555; font-size: 0.95rem; }
+    button { padding: 8px 14px; }
+  </style>
+</head>
+<body>
+  <h2>Upload 3 files</h2>
+  <form id="uploadForm" method="post" enctype="multipart/form-data" action="/upload">
+    {% csrf_token %}
+    <div class="file-row">
+      <label>File 1: <input type="file" name="file1" id="file1" accept="*/*" /></label>
+      <span id="f1size" class="size"></span>
+      <div id="f1preview" class="preview"></div>
+    </div>
+
+    <div class="file-row">
+      <label>File 2: <input type="file" name="file2" id="file2" accept="*/*" /></label>
+      <span id="f2size" class="size"></span>
+      <div id="f2preview" class="preview"></div>
+    </div>
+
+    <div class="file-row">
+      <label>File 3: <input type="file" name="file3" id="file3" accept="*/*" /></label>
+      <span id="f3size" class="size"></span>
+      <div id="f3preview" class="preview"></div>
+    </div>
+
+    <button type="submit">Upload files</button>
+  </form>
+
+  <script>
+    // helper to format bytes
+    function humanFileSize(bytes) {
+      if (!bytes && bytes !== 0) return '';
+      var thresh = 1024;
+      if (Math.abs(bytes) < thresh) {
+        return bytes + ' B';
+      }
+      var units = ['KB','MB','GB','TB','PB','EB','ZB','YB'];
+      var u = -1;
+      do {
+        bytes /= thresh;
+        ++u;
+      } while(Math.abs(bytes) >= thresh && u < units.length - 1);
+      return bytes.toFixed(1) + ' ' + units[u];
+    }
+
+    function showFileInfo(inputEl, sizeElId, previewElId) {
+      const file = inputEl.files[0];
+      const sizeEl = document.getElementById(sizeElId);
+      const previewEl = document.getElementById(previewElId);
+      if (!file) {
+        sizeEl.textContent = '';
+        previewEl.textContent = '';
+        return;
+      }
+      sizeEl.textContent = humanFileSize(file.size);
+      // show some preview info (name, type)
+      previewEl.textContent = `Selected: ${file.name} — type: ${file.type || 'n/a'}`;
+    }
+
+    document.getElementById('file1').addEventListener('change', function() {
+      showFileInfo(this, 'f1size', 'f1preview');
+    });
+    document.getElementById('file2').addEventListener('change', function() {
+      showFileInfo(this, 'f2size', 'f2preview');
+    });
+    document.getElementById('file3').addEventListener('change', function() {
+      showFileInfo(this, 'f3size', 'f3preview');
+    });
+
+    // Optional: show sizes again when form submits (but they will be saved server-side)
+    document.getElementById('uploadForm').addEventListener('submit', function() {
+      // intentionally left blank (files already displayed)
+    });
+  </script>
+</body>
+</html>
